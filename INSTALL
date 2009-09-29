@@ -1,0 +1,17 @@
+1. Extract the bootstrap archive.
+
+2. Rename the boostrap the folder and the "bootstrap" part of the
+ATEO-boostrap.{image,changes} files inside it to reflect the module of ATEO you
+plan to work on.
+For example, if you want to work on SAM then you would rename the bootstrap
+folder to SAM, and the Squeak files to ATEO-SAM.{image,changes}.
+
+3. Launch the Squeak image and file-in the appropiate *.st files.
+
+4. Instead of copying shared *.st files among modules it is preferred to
+symlink to the original version. Example: You want to use (that is, read and
+write to) SAM/ATEO-SAM.st in the AAF module. Now just create a AAF/ATEO-SAM.st
+symlink pointing to SAM/ATEO-SAM.st. The effect being that when you file-out
+ATEO-SAM from the AAF copy of the ATEO-bootstrap image it will be correctly
+written to SAM/ATEO-SAM.st, preventing evil source file duplication within the
+repository.

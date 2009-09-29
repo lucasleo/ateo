@@ -1,0 +1,44 @@
+Das ATEO-Projekt
+
+Im Rahmen des ATEO-Projektes sollen mehrere Softwarepakete entwickelt und
+gewartet werden. Im Einzelnen sind das SAM (Socially Augmented Microworld),
+welches als Tracking Simulation Überwachungsprozess für den Operateur und die
+Automatiken ist. Zum Anderen ist das ein Arbeitsplatz für den Operateur, der
+ihm die Möglichkeit bietet, den laufenden Prozess (SAM) zu überwachen und bei
+Bedarf einzugreifen. Die Eingriffe sind hierbei in harte und weiche Eingriffe
+zu unterscheiden. Unter harten Eingriffen versteht man die Eingriffe, die
+direkt in das Verhalten der steuernden Mikroweltbewohner eingreifen. So z.B.
+ist es dem Operateur möglich, die maximale vertikale Joystickumsetzung auf
+einer Skala von 0-120% zu beinflussen und damit die Gesamtgeschwindigkeit des
+Prozesses. Ein weiterer harter Eingriff ist die Möglichkeit, die horizontale
+Joystickumsetzung zu blockieren und damit das Fahren in eine bestimmte Richtung
+zu erzwingen, so z.B. an Gabelungen. Als weiche Eingriffe sind dem Operateur
+auditive und visuelle Hinweise zur Hand gegeben, damit den steuernden
+Mikroweltbewohnern Hilfestellungen in Hinblick auf ihr gemeinsames Ziel, die
+schnelle und fehlerfreie Bewältigung der Strecke, gegeben werden können.
+
+Als dritte Komponente des ATEO Projektes sind Automatiken vorgesehen, welche
+Funktionen des Operateurs umsetzen. Diese Automatiken werden prospektiv von
+Entwicklern entworfen und im Vergleich zu den Leistungen des Operateurs
+bewertet. Den Entwicklern können dabei unterschiedlich viele Informationen für
+die Entwicklung solcher gegeben werden.
+
+Die einzelnen Softwarekomponenten von ATEO werden mit Smalltalk und der
+Programmierumgebung squeak entwickelt. Dabei wurde bei der Entwicklung von SAM
+anfangs die Softwarearchitektur vernachlässigt, so dass die Softwarearchitektur
+von SAM verworren ist. Es gab sehr viel toten Quellcode und eine übermäßige
+Nutzung von globalen Variablen macht das Verstehen der Beziehungen zwischen den
+Klassen schwer. Aus diesem und anderen Gründen wurde die Softwarearchitektur
+gründlich analysiert und eine neue verbesserte vorgeschlagen.
+
+Im Rahmen einer generischen Toolbox soll nun die Funktionalität und die neue
+Softwarearchitektur von SAM mit Java implementiert werden. Aber es soll in
+einem Schritt weiter generischer werden und es anderen Psychologen ermöglichen
+eigene Experimente mit SAM zu starten und auch Aspekte zu berücksichtigen wie
+z.B. neue Eigenschaften der Strecke oder des Steuerobjektes, welche bis jetzt
+im Rahmen des ATEO Projektes vernachlässigt wurden.
+
+Weitere Arbeiten im oder um das ATEO Projekt herum umfassen die Programmierung
+eines Auswerteprogramms für die Logdateien von SAM sowie die Programmierung
+eines Fragebogentools für die Erstellung von Fragebögen, welches nicht nur im
+ATEO Projekt genutzt werden kann.
