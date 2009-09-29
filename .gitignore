@@ -1,0 +1,20 @@
+#ignore the unzipped bootstrap archive
+/bootstrap/
+
+#only include *.st, *.image and *.changes files from the the SAM folder
+SAM/*
+!SAM/*.st
+!SAM/*.image
+!SAM/*.changes
+
+#only include *.st, *.image and *.changes files from the the OA folder
+OA/*
+!OA/*.st
+!OA/*.image
+!OA/*.changes
+
+#only include *.st, *.image and *.changes files from the the AAF folder
+AAF/*
+!AAF/*.st
+!AAF/*.image
+!AAF/*.changes
