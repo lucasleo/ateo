@@ -19,3 +19,5 @@ On Windows, symlinks do not work. Since you cannot specify a path when filing
 out from the browser's menu you have to make sure you work in the right module.
 If you want to update SAM/ATEO-SAM.st make sure you run the SAM/ATEO-SAM.image!
 We might write our own file-out/file-in mechanism to ease those problems.
+
+5. Once you modified the source you should use the ATEOFileOut class to file out changesets.
