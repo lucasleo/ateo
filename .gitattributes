@@ -1,3 +1,13 @@
-*.st crlf diff merge
-*.changes binary
-*.image binary
+#Convert CRLF TO LF when pushing *.st files from the SAM folder, treat the rest as binary.
+SAM/*.st crlf diff merge
+SAM/*.changes binary
+SAM/*.image binary
+
+#Convert CRLF TO LF when pushing *.st files from the OA folder, treat the rest as binary.
+OA/*.st crlf diff merge
+OA/*.changes binary
+OA/*.image binary
+#Convert CRLF TO LF when pushing *.st files from the AAF folder, treat the rest as binary.
+AAF/*.st crlf diff merge
+AAF/*.changes binary
+AAF/*.image binary
