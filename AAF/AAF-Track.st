@@ -11,7 +11,7 @@ at: index
 
 
 Object subclass: #AAFTrackAnalyzer
-	instanceVariableNames: 'trackFunctions'
+	instanceVariableNames: 'trackFunctions trackImage'
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'AAF-Track'!
@@ -43,45 +43,21 @@ findCounterparts
 !AAFTrackAnalyzer methodsFor: 'as yet unclassified' stamp: 'HM 10/19/2009 12:35'!
 findRacingLine! !
 
-!AAFTrackAnalyzer methodsFor: 'as yet unclassified' stamp: 'HM 10/7/2009 08:54'!
-findTrackPoints: trackFileName
-	^(self findTrackPoints: trackFileName writeToForm: nil)
-! !
-
-!AAFTrackAnalyzer methodsFor: 'as yet unclassified' stamp: 'HM 10/19/2009 12:35'!
-findTrackPoints: trackFileName writeToForm: resultBitmap
-	| track xLoop yLoop onTrack xOffset trackExtent resultBlt color lineBitmap haveToCreateBitmap |
+!AAFTrackAnalyzer methodsFor: 'as yet unclassified' stamp: 'HM 10/20/2009 17:13'!
+findTrackPoints: trackFileName writeTo: resultFileName
+	| xLoop yLoop onTrack xOffset color lineBitmap |
 	
-	track := Form fromBMPFileNamed: trackFileName.
-	trackExtent := ((track width) @ (track height)).
+	trackImage surfaceFromFile: trackFileName.
 	
 	"Basically fill up the dictionaries with nils for every height value."
-	self setupTrackFunctions: (track height).
-	
-	haveToCreateBitmap := false.
-	(resultBitmap isKindOf: Form)
-		ifTrue: [haveToCreateBitmap := true].
-	
-	(haveToCreateBitmap)
-		ifTrue: [
-			resultBitmap setExtent: trackExtent depth: (track depth).
-			
-			resultBlt := (BitBlt destForm: resultBitmap  
-			                     sourceForm: nil
-			                     halftoneForm: nil
-			                     combinationRule: Form over
-			                     destOrigin: 0@0
-			                     sourceOrigin: 0@0
-			                     extent: trackExtent
-			                     clipRect: (0@0 extent: trackExtent)).
-		].
+	self setupTrackFunctions: (trackImage track height).
 
-	"The first 15 pixels (0-14) are used to encode track information, so we skip them."
+	"The first 15 pixels (0-14) are traditionally used to encode track information, so we skip them."
 	xOffset := 15. 
 	
 	"Storing the loop conditions explicitly speeds up loop iteration in Squeak. Yup, sad."
-	yLoop :=	(0 to: ((track height) - 1)).
-	xLoop := (xOffset to: ((track width) - 1)).
+	yLoop :=	(0 to: ((trackImage track height) - 1)).
+	xLoop := (xOffset to: ((trackImage track width) - 1)).
 	
 	(yLoop)
 		do: [:yIndex || lBorder rBorderMaybe rBorder functionIndex |
@@ -94,18 +70,13 @@ findTrackPoints: trackFileName writeToForm: resultBitmap
 			
 			onTrack := false.
 
-			(haveToCreateBitmap)
-				ifTrue: [
-					"Using a new lineBitmap for every yIndex is quite inefficient. We could just draw directly on one form, if that wouldn't create runtime errors. Forms and BitBlits are notoriously bad tested in Squeak. Also, it makes some stuff easier (proper cleanup for each yIndex, at least)."
-					lineBitmap := Form new.
-					lineBitmap setExtent: ((track width) @ 1) depth: (track depth).
-					resultBlt sourceForm: lineBitmap.
-				].
+			"Using a new lineBitmap for every yIndex is quite inefficient. We could just draw directly on one form, if that wouldn't create runtime errors. Forms and BitBlits are notoriously bad tested in Squeak. Also, it makes some stuff easier (proper cleanup for each yIndex, at least)."
+			lineBitmap := trackImage createLineFormFromSurface.
 
 			(xLoop)
 				do: [:xIndex|
 					 
-					color := (track colorAt: (xIndex @ yIndex)).
+					color := (trackImage track colorAt: (xIndex @ yIndex)).
 					
 					((onTrack not) and: [self isWhiteish: color])
 						ifTrue: [
@@ -127,29 +98,26 @@ findTrackPoints: trackFileName writeToForm: resultBitmap
 							functionIndex := functionIndex + 1.
 							onTrack := false.
 							
-							(haveToCreateBitmap)
-								ifTrue: [
+							"lineBitmap fillGray."
+							lineBitmap colorAt: (lBorder @ 0) put: (Color red);
+							           colorAt: (rBorder @ 0) put: (Color red);
+							           colorAt: ((lBorder + ((rBorder - lBorder) * 0.50)) @ 0) put: (Color yellow).
+							trackImage copyBitsOf: lineBitmap origin: (0 @ yIndex).
 
-									"lineBitmap fillGray."
-									lineBitmap colorAt: (lBorder @ 0) put: (Color red);
-									           colorAt: (rBorder @ 0) put: (Color red).
-									           "colorAt: ((lBorder + ((rBorder - lBorder) * 0.50)) @ 0) put: (Color yellow)."
-									
-									resultBlt destOrigin: (0 @ yIndex).
-									resultBlt copyBits.
-								].
-							
 							lBorder := -1.
 							rBorder := -1. 
 						].           
 				].
-		].! !
+		].
 
-!AAFTrackAnalyzer methodsFor: 'as yet unclassified' stamp: 'HM 10/7/2009 08:52'!
+	trackImage writeToFile: resultFileName.! !
+
+!AAFTrackAnalyzer methodsFor: 'as yet unclassified' stamp: 'HM 10/20/2009 16:49'!
 initialize
 	super initialize.
 
-	trackFunctions := OrderedCollection new.! !
+	trackFunctions := OrderedCollection new.
+	trackImage := AAFTrackImage new.! !
 
 !AAFTrackAnalyzer methodsFor: 'as yet unclassified' stamp: 'HM 10/5/2009 01:26'!
 isGreenish: aColor
@@ -194,24 +162,7 @@ setupTrackFunctions: argsAmount
 trackFunctions
 	^trackFunctions! !
 
-!AAFTrackAnalyzer methodsFor: 'as yet unclassified' stamp: 'HM 10/20/2009 00:28'!
-transform: aPoint rotateBy: angleDeg scaleBy: length
-	| x y vecLength scaleBy rotatedBy |
-	
-	(length = 0) ifTrue: [^false].
-	
-	rotatedBy := self rotate: aPoint by: angleDeg.
-
-	x := rotatedBy x.
-	y := rotatedBy y.
-
-	
-	vecLength := (((x raisedTo: 2) + (y raisedTo: 2)) sqrt).
-	scaleBy := length / vecLength.
-
-	^((x * scaleBy) @ (y * scaleBy))! !
-
-!AAFTrackAnalyzer methodsFor: 'as yet unclassified' stamp: 'HM 10/20/2009 00:30'!
+!AAFTrackAnalyzer methodsFor: 'as yet unclassified' stamp: 'HM 10/20/2009 14:38'!
 transform: aPoint rotateBy: angleDeg scaleTo: length
 	| x y vecLength scaleBy rotatedBy |
 	
@@ -221,7 +172,6 @@ transform: aPoint rotateBy: angleDeg scaleTo: length
 
 	x := rotatedBy x.
 	y := rotatedBy y.
-
 	
 	vecLength := (((x raisedTo: 2) + (y raisedTo: 2)) sqrt).
 	scaleBy := length / vecLength.
@@ -236,3 +186,64 @@ AAFTrackAnalyzer class
 !AAFTrackAnalyzer class methodsFor: 'as yet unclassified' stamp: 'HM 10/6/2009 01:03'!
 maxBranches
 	^5! !
+
+
+Object subclass: #AAFTrackImage
+	instanceVariableNames: 'surface surfaceBlt track'
+	classVariableNames: ''
+	poolDictionaries: ''
+	category: 'AAF-Track'!
+
+!AAFTrackImage methodsFor: 'as yet unclassified' stamp: 'HM 10/20/2009 16:21'!
+copyBitsOf: aForm origin: origin
+
+	surfaceBlt sourceForm: aForm.
+
+	surfaceBlt destOrigin: origin.
+	surfaceBlt copyBits.! !
+
+!AAFTrackImage methodsFor: 'as yet unclassified' stamp: 'HM 10/20/2009 16:24'!
+createLineFormFromSurface
+	"Creates a form that has same depth, width as surface but height of 1px"
+	| lineForm |
+	
+	lineForm := Form new.
+	lineForm setExtent: ((surface width) @ 1) depth: (surface depth).
+	
+	^lineForm! !
+
+!AAFTrackImage methodsFor: 'as yet unclassified' stamp: 'HM 10/20/2009 15:55'!
+initialize
+	super initialize.! !
+
+!AAFTrackImage methodsFor: 'as yet unclassified' stamp: 'HM 10/20/2009 16:41'!
+surface
+	^surface! !
+
+!AAFTrackImage methodsFor: 'as yet unclassified' stamp: 'HM 10/20/2009 17:20'!
+surfaceFromFile: fileName
+	| surfaceExtent |
+	
+	track := Form fromBMPFileNamed: fileName.
+	
+	surface := Form extent: (track extent)
+	                depth: (track depth).
+	
+	surfaceExtent := ((surface width) @ (surface height)).
+
+	surfaceBlt := (BitBlt destForm: surface
+	                      sourceForm: nil
+	                      halftoneForm: nil
+	                      combinationRule: Form over
+	                      destOrigin: 0@0
+	                      sourceOrigin: 0@0
+	                      extent: surfaceExtent
+	                      clipRect: (0@0 extent: surfaceExtent)).! !
+
+!AAFTrackImage methodsFor: 'as yet unclassified' stamp: 'HM 10/20/2009 17:11'!
+track
+	^track! !
+
+!AAFTrackImage methodsFor: 'as yet unclassified' stamp: 'HM 10/20/2009 16:42'!
+writeToFile: fileName
+	surface writeBMPfileNamed: fileName.! !
