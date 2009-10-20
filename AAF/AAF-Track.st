@@ -168,6 +168,22 @@ isWhiteish: aColor
 	  [aColor green > threshold] and:
 	  [aColor blue > threshold])! !
 
+!AAFTrackAnalyzer methodsFor: 'as yet unclassified' stamp: 'HM 10/20/2009 00:03'!
+rotate: aPoint by: angleDeg
+	| x y angle tempX |
+	
+	x := aPoint x.
+	y := aPoint y.
+	
+	angle := angleDeg * ((Float pi)  / 180).
+	
+	tempX := ((angle cos) * x) + (((angle sin) negated) * y).
+	y := ((angle sin) * x) + ((angle cos) * y).
+	x := tempX.
+	
+	^(x @ y)
+! !
+
 !AAFTrackAnalyzer methodsFor: 'as yet unclassified' stamp: 'HM 10/6/2009 02:49'!
 setupTrackFunctions: argsAmount
 
@@ -177,6 +193,40 @@ setupTrackFunctions: argsAmount
 !AAFTrackAnalyzer methodsFor: 'as yet unclassified' stamp: 'HM 10/6/2009 01:30'!
 trackFunctions
 	^trackFunctions! !
+
+!AAFTrackAnalyzer methodsFor: 'as yet unclassified' stamp: 'HM 10/20/2009 00:28'!
+transform: aPoint rotateBy: angleDeg scaleBy: length
+	| x y vecLength scaleBy rotatedBy |
+	
+	(length = 0) ifTrue: [^false].
+	
+	rotatedBy := self rotate: aPoint by: angleDeg.
+
+	x := rotatedBy x.
+	y := rotatedBy y.
+
+	
+	vecLength := (((x raisedTo: 2) + (y raisedTo: 2)) sqrt).
+	scaleBy := length / vecLength.
+
+	^((x * scaleBy) @ (y * scaleBy))! !
+
+!AAFTrackAnalyzer methodsFor: 'as yet unclassified' stamp: 'HM 10/20/2009 00:30'!
+transform: aPoint rotateBy: angleDeg scaleTo: length
+	| x y vecLength scaleBy rotatedBy |
+	
+	(length = 0) ifTrue: [^false].
+	
+	rotatedBy := self rotate: aPoint by: angleDeg.
+
+	x := rotatedBy x.
+	y := rotatedBy y.
+
+	
+	vecLength := (((x raisedTo: 2) + (y raisedTo: 2)) sqrt).
+	scaleBy := length / vecLength.
+
+	^((x * scaleBy) @ (y * scaleBy))! !
 
 "-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- "!
 
